@@ -1,0 +1,294 @@
+/*
+ *  Comparing Less & Sass/SCSS, Sass/SCSS - scss.scss
+ */
+
+
+/*! IMPORTS */
+//! --------------------------------------------------
+
+/*! -- Include a File's Contents in This File */
+/// ------------------------
+//  The .scss extention can be left off of imported files.  Unlike Less, Sass/SCSS does will
+//  automatically look for a file w/ a _ prefix if it doesn't find one w/o it.  This is due to a
+//  fundamental difference in how files are watched for compiling between the two languages.
+@import 'imports/import'; // import.scss is imported
+@import 'imports/partial'; // _partial.scss is imported
+
+/*! -- Including a File With a Different Extension */
+/// ------------------------
+//  Both Less & Sass/SCSS import files with extensions other than .css as Less or Sass/SCSS
+//  (respectively).
+@import 'imports/css.txt';
+
+/*! -- Including CSS In-Place or Processing it as Less */
+/// ------------------------
+//  With Sass/SCSS, there's currently no way to include a CSS file inline.  A solution has been
+//  promised in v4.0 (see https://github.com/sass/sass/issues/193#issuecomment-108590912).  The
+//  current version is v3.5.0 (LibSass).
+//@import 'imports/css.css'; // Sorry, can't do it just yet.
+
+/*! -- Defining CSS `@import` */
+/// ------------------------
+//  The following will all be output as a CSS @import at the "top" of the final CSS.  "Top" here
+//  actually means "after any comments already included".
+//
+//  > "By default, it looks for a Sass file to import directly, but there are a few circumstances
+//  >  under which it will compile to a CSS @import rule."
+//
+//  See http://sass-lang.com/documentation/file.SASS_REFERENCE.html#import
+@import 'hypothetical-file-1.css';                     // If a file's extention is .css. (Transformed to `@import url(hypothetical-file-1.css);`.)
+@import 'hypothetical-file-2.scss' screen;             // If the @import has any media queries.
+@import 'http://example.com/hypothetical-file-3.scss'; // If the filename begins w/ http://.
+@import url('hypothetical-file-4.scss');               // If the filename is a url().
+// To import a file w/ an extension other than .css, you can hack it by wrapping it in a url(), or
+// by adding `all` as a media query
+@import url('hypothetical-file-5.css.php');
+@import 'hypothetical-file-5.css.php' all;
+/*! if you're looking at this in the CSS, look at the top of the file for the actual imports */
+
+
+/*! VARIABLES */
+//! --------------------------------------------------
+//  Sass/SCSS variables use `$`.
+
+$variable: value;
+
+/*! -- Theming & Overriding */
+/// ------------------------
+// Sass/SCSS' variables work like most programming language's variables do.
+$color: red;
+.variable-behavior {
+	color: $color; // → red
+}
+$color: blue;
+// Less' behavior can be emulated if deference is given to later variables by explicitly labelling
+// a variable's value as overridable using the `!default` variable flag.
+$color: red !default;
+.variable-behavior-lessy {
+	color: $color; // → blue
+}
+$color: blue;
+
+/*! -- Variable Scope */
+/// ------------------------
+$bg-color: red;
+.variable-scope {
+	$bg-color: green; // Variables defined in more local scope override more global ones.
+	background-color: $bg-color; // → green
+}
+$bg-color: blue;
+$bg-color-1: red;
+.variable-scope-default {
+	$bg-color-1: green !default; // The !default flag weakens the variable.  Not sure when this would be useful, though...
+	background-color: $bg-color-1; // → red
+}
+$bg-color-1: blue;
+$bg-color-2: red !default;
+.variable-scope-default-default {
+	$bg-color-2: green !default; // If the variables are declared all over, it may be tough to know what the eventual value will be...
+	background-color: $bg-color-2; // → blue
+}
+$bg-color-2: blue;
+
+
+/*! NESTING */
+//! --------------------------------------------------
+//  Simple nesting works the same in both Less & Sass/SCSS.
+
+.parent {
+	/* style the parent on its own, if you need them */
+	.child {
+		/* style the child, as nested in the parent */
+	}
+}
+
+/*! -- `&` Parent Selector */
+/// ------------------------
+//  There are some _very_ subtle difference between how `&` works in Less and in Sass/SCSS, but it's
+//  mostly 1:1.
+.menu {
+	/* ... */
+	a {
+		display: inline-block;
+		padding: 5px 20px;
+		&:hover { // outputs .menu a:hover
+			background-color: #5ad;
+		}
+	}
+}
+.dialog-backdrop {
+	display: none;
+	body.has-open-dialog & {
+		display: block;
+	}
+}
+.alert {
+	border: 1px solid currentcolor;
+	&-error { // → .alert-error
+		color: #e66;
+	}
+}
+// This is an example of a thing Less can do that Sass/SCSS can't.
+//	.button {
+//		padding: 5px 20px;
+//		a& { // → ERROR "&" may only be used at the beginning of a compound selector.
+//			display: inline-block;
+//		}
+//		button& { // → ERROR "&" may only be used at the beginning of a compound selector.
+//			appearance: none;
+//		}
+//	}
+// But the above can be trivially re-written to the following, so it's not really a big deal.
+.button {
+	padding: 5px 20px;
+}
+	a.button {
+		display: inline-block;
+	}
+	button.button {
+		appearance: none;
+	}
+
+/*! -- "Scoping" an Imported File */
+/// ------------------------
+.scoped {
+	@import 'imports/import.scoped.scss';
+}
+
+
+/*! MIXINS */
+//! --------------------------------------------------
+//  Most of the major differences between Less and Sass/SCSS have to do with mixins.  There are
+//  features of both that aren't shared by the other, so if you're deciding, this is where you'll
+//  want to focus your research.
+//  See http://sass-lang.com/documentation/file.SASS_REFERENCE.html#mixins
+
+// Mixins won't be output to CSS.  Something to note, from the docs:
+//
+// > "For historical reasons, mixin names (and all other Sass identifiers) can use hyphens and
+// >  underscores interchangeably. For example, if you define a mixin called add-column, you can
+// >  include it as add_column, and vice versa."
+
+@mixin helvetica {
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+html, body {
+	@include helvetica;
+}
+
+/*! -- Parametric Mixins */
+/// ------------------------
+//  Mixins can optionally accept arguments, separated by commas (`,`).
+//  Arguments can also be given default values, specified after the argument name with a colon.
+//  Arguments with default values are optional when the mixin is called.
+@mixin button-theme($text-color, $background-color, $darken-amount: 20%) {
+	color: $text-color;
+	background-color: $background-color;
+	&:hover {
+		background-color: darken($background-color,20%); // Generated background color.
+	}
+}
+.button-green {
+	@include button-theme(#fff, #10ca15);
+}
+
+/*! -- Defining a Mixin & Class With the Same Name */
+/// ------------------------
+//  In Sass/SCSS, to have a mixin and class with the same name, you just have to declare the mixin,
+//  then expose it as a class by declaring the class and mixing in the mixin.
+@mixin clearfix {
+	&:before,
+	&:after {
+		content: ' ';
+		display: table;
+	}
+	&:after {
+		clear: both;
+	}
+}
+.clearfix {
+	@include clearfix;
+}
+.something-to-clearfix {
+	@include clearfix;
+}
+
+/*! -- Mixing in Classes from Other Files */
+/// ------------------------
+//  I don't know of any way this would be accomplished, unless the included files expose those
+//  classes as mixins explicitly.  Included CSS, therefore, would be largely inaccessible except w/
+//  extends.
+/* No way to do this in Sass/SCSS. */
+
+/*! -- Detatched Rulesets / Passing Content Blocks to Mixins */
+/// ------------------------
+//  Sass/SCSS has a special syntax just for passing content blocks to mixins.
+@mixin render-this {
+	.rendered {
+		@content;
+	}
+}
+.here-is-a-rendered-thing {
+	@include render-this { // include w/ rule block passes the block as `@content`
+		text-transform: uppercase;
+	}
+}
+// There's no way to specify default content in Sass/SCSS.
+
+
+/*! EXTENDING/INHERITANCE */
+//! --------------------------------------------------
+
+.extensible {
+	background-color: #ace;
+}
+.nested {
+	.extensible {
+		border-width: 5px;
+	}
+}
+
+.extension {
+	@extend .extensible;
+}
+/* Sass/SCSS extends all instances by default. */
+/* Sass/SCSS doesn't allow extending nested selectors. */
+//	.extension-nested {
+//		@extend .nested .extensible; // → ERROR Can't extend .nested .extensible: can't extend nested selectors
+//	}
+
+
+/*! COMMENTS */
+//! --------------------------------------------------
+//  Both language's comments work essentially the same.  Since CSS technically only respects block-
+//  style comments (`/*` & `*/`) Less & Sass/SCSS both consider those to be CSS Comments.  They both
+//  also add line-style comments (`//`), which they will _not_ output to CSS.
+
+/*! -- The Following Comments are _Not_ Output */
+/// ------------------------
+.comments .contains-only-less-comments { // Not output.
+	// Not output. (In fact, as the rule contains only line-style comments, the whole rule will not
+	// be output to the final CSS.)
+} // Not output.
+.comments .empty-rule {} // Not output.
+// Not output.
+
+/*! -- The Following Comments are Output if the Output Style is "Nested", "Expanded", or "Compact" */
+/// ------------------------
+.comments .contains-only-css-comments { /* Output. Note that whitespace around comments changed. */
+	/* Output.  Additionally, since a comment inside the rule is output, the whole rule is output to
+	 * the final CSS. */
+} /* Output. */
+.comments .empty-rule {}
+/* Output. */
+
+/*! -- The Following Comments are Output, Even if the Output Style Is "Minified" */
+/// ------------------------
+//  Adding an exclamation mark (`!`) as the first character of a comment (i.e. `/*!`) marks it for
+//  inclusion even if the output is minified.
+.comments .contains-only-css-bang-comments { /*! Output. */
+	/*! Output.  Additionally, since a comment inside the rule is output, the whole rule is output to
+	 * the final CSS. */
+} /*! Output. */
+.comments .empty-rule {}
+/*! Output. */

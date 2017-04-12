@@ -1,0 +1,9 @@
+/*
+ *  External CSS File for Demonstrating Importing - css.css
+ */
+
+
+.from-css {
+	/* From css.css */
+	font-style: italic;
+}

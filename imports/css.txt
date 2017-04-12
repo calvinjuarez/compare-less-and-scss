@@ -1,0 +1,9 @@
+/*
+ *  External CSS File for Demonstrating Importing, But With a Different Extension - css.txt
+ */
+
+
+.from-css-txt {
+	/* From css.txt */
+	font-weight: bold;
+}

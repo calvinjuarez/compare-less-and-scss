@@ -1,0 +1,50 @@
+//
+//  Styles to be Scoped - import.scoped.less
+//
+
+
+.rule-to-be-scoped {
+	/* ... */
+}
+
+
+/*! SCOPED IMPORT CAVEATS */
+//! --------------------------------------------------
+//  The `&` parent selector and extending can cause issues here.
+
+/*! -- Parent Selector Examples */
+/// ------------------------
+// The following works as it was most likely intended to work.
+.scoped-dialog-backdrop {
+	display: none;
+	body.has-open-dialog & { // → body.has-open-dialog .scoped .scoped-dialog-backdrop (as intended)
+		display: block;
+	}
+}
+// However, this bit breaks.
+.scoped-button {
+	padding: 5px 20px;
+	a& { // → a.scoped .scoped-button (probably not what was intended)
+		display: inline-block;
+	}
+}
+// The workaround is the same for working around the above feature not being available in Sass/SCSS.
+.scoped-button {
+	padding: 5px 20px;
+}
+	a.scoped-button { // → .scoped a.scoped-button (more likely what was meant)
+		display: inline-block;
+	}
+
+/*! -- Extend Examples */
+/// ------------------------
+//  In Less, the behavior of extends may be a little unexpected.  However, there's a very simple
+//  workaround: Just extend the eventual selector.  (Doesn't work with interpolated selectors.)
+.scoped-extensible { // → .scoped .scoped-extend-base
+	background-color: #ace;
+}
+.scoped-extension {
+	//&:extend(.scoped-extensible); // → WARNING extend ' .scoped-extend-base' has no matches (extend ignored)
+	&:extend(.scoped-extensible all); // → .scoped .scoped .scoped-extension (probably not what was intended)
+	&:extend(.scoped .scoped-extensible); // → .scoped .scoped-extension (as intended)
+}

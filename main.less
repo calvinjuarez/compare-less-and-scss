@@ -1,0 +1,299 @@
+/*
+ *  Comparing Less & Sass/SCSS, Less - less.less
+ */
+
+
+/*! IMPORTS */
+//! --------------------------------------------------
+
+/*! -- Basic Inclusion of a File's Contents */
+/// ------------------------
+//  The .less extention can be left off of imported files.  Unlike Sass/SCSS, Less does not
+//  automatically look for a file w/ a _ prefix if it doesn't find one w/o it, so for Sass-like
+//  "partials" convention, you must remember to put the _ in the name.
+@import 'imports/import'; // import.less is imported
+@import 'imports/_partial'; // _partial.less is imported
+
+/*! -- Including a File With a Different Extension */
+/// ------------------------
+//  Both Less & Sass/SCSS import files with extensions other than .css as Less or Sass/SCSS
+//  (respectively).
+@import 'imports/css.txt';
+
+/*! -- Including CSS In-Place or Processing it as Less */
+/// ------------------------
+//  Unlike Sass/SCSS, Less has a number of options to help Less understand what kind of import
+//  behavior is expected.
+//  Since Less is essentially a superset of CSS (ie all valid CSS is also valid Less), importing a
+//  (properly formed) CSS file with the `less` option is totally safe.  The purpose of this file is
+//  not to dictate how to write your styles, so consult the docs for details.
+//  See http://lesscss.org/features/#import-options
+@import (less) 'imports/css.css'; // Assumes the file is valid Less and processes it.
+//  OR, to preserve the file exactly as it is (white-space included, before minification)
+@import (inline) 'imports/css.css'; // Includes the contents of the file _without_ processing it.
+// Note: For speed, Less will only import a file once by default, even if a different option is
+// set for a subsequent import.  You can add the `multiple` option to specify it should be allowed
+// to be imported more than once, but that will also have a negative effect on performance.
+// Also, more than one option can be passed, so `@import (inline, multiple)` is valid.  Not all
+// options can stack with other options, of course.  Consult the docs for more info.
+
+/*! -- Defining CSS `@import` */
+/// ------------------------
+//  The following will all be output as a CSS @import at the "top" of the final CSS.  "Top" here
+//  actually means "after any comments already included".
+//
+//  > "@import statements may be treated differently by Less depending on the file extension."
+//
+//  See http://lesscss.org/features/#import-directives-feature-file-extensions
+@import 'hypothetical-file-1.css'; // If a file's extention is .css
+//  A file can also be explicitly marked for treatment as CSS by specifying an import option, even
+//  if the extention is not .css.
+@import (css) 'hypothetical-file-2.less' screen;
+@import (css) 'http://example.com/hypothetical-file-3.less';
+@import (css) url('hypothetical-file-4.less');
+@import (css) 'hypothetical-file-5.css.php';
+/*! if you're looking at this in the CSS, look at the top of the file for the actual imports */
+
+
+/*! VARIABLES */
+//! --------------------------------------------------
+//  Less variables use `@`.
+
+@variable: value;
+
+/*! -- Theming & Overriding */
+/// ------------------------
+// Less' variables are sort of "lazy loaded", which can be confusing when you first see it, but it
+// makes theming included libraries in an organized stylesheet really simple.  That is, you can
+// override a variable's value even after it's been used.  Technically, variable _values_ aren't
+// processed 'til Less is ready to output some CSS, meaning everything's been run before anything
+// gets written.  Another way to think of it is that the variables are all processed before they're
+// ever used.  It's a little innaccurate, but it helps understand what'll happen.
+@color: red;
+.variable-behavior {
+	color: @color; // → blue
+}
+@color: blue; // Latest definition wins.
+// Sass/SCSS' behavior can't really be emulated.  In practice, this doesn't tend to be an issue, as
+// variable names are usually very unique and specific.  Additionally, most variables are put into
+// one file (usually variables.less) and included altogether, so overriding later on isn't a big
+// deal.
+
+/*! -- Variable Scope */
+/// ------------------------
+@bg-color: red;
+.variable-scope {
+	@bg-color: green; // Variables defined in more local scope override more global ones.
+	background-color: @bg-color; // → green
+}
+@bg-color: blue;
+
+
+
+/*! NESTING */
+//! --------------------------------------------------
+//  Simple nesting works the same in both Less & Sass/SCSS.
+
+.parent {
+	/* style the parent on its own, if you need them */
+	.child {
+		/* style the child, as nested in the parent */
+	}
+}
+
+/*! -- `&` Parent Selector */
+/// ------------------------
+//  There are some subtle difference between how `&` works in Less and in Sass/SCSS.  Specifically,
+//  Less can do `selector&`, with no whitespace, but SCSS cannot.  This technique can be dangerous
+//  for other reasons (see below), so it's usually avoided, but it's a difference worth mentioning.
+.menu {
+	/* ... */
+	a {
+		display: inline-block;
+		padding: 5px 20px;
+		&:hover { // → .menu a:hover
+			background-color: #5ad;
+		}
+	}
+}
+.dialog-backdrop {
+	display: none;
+	body.has-open-dialog & { // → body.has-open-dialog .dialog-backdrop
+		display: block;
+	}
+}
+.alert {
+	border: 1px solid currentcolor;
+	&-error { // → .alert-error
+		color: #e66;
+	}
+}
+// This is an example of a thing Less can do that Sass/SCSS can't.
+.button {
+	padding: 5px 20px;
+	a& { // → a.button
+		display: inline-block;
+	}
+	button& { // → button.button
+		appearance: none;
+	}
+}
+// But the above can be trivially re-written to the following, so it's not really a big deal.
+//	.button {
+//		padding: 5px 20px;
+//	}
+//		a.button {
+//			display: inline-block;
+//		}
+//		button.button {
+//			appearance: none;
+//		}
+
+/*! -- "Scoping" an Imported File */
+/// ------------------------
+.scoped {
+	@import 'imports/import.scoped.less';
+}
+
+
+/*! MIXINS */
+//! --------------------------------------------------
+//  Most of the major differences between Less and Sass/SCSS have to do with mixins.  There are
+//  features of both that aren't shared by the other, so if you're deciding, this is where you'll
+//  want to focus your research.
+//  See http://lesscss.org/features/#mixins-feature
+
+// Mixins won't be output to CSS.  In Less, mixins can be prefixed with either a hash (`#`; like an
+// id selector) or dot (`.`; like a class selector).  Dot (`.`) is by _far_ the most common.
+
+.helvetica() {
+	// ^ Adding the perentheses (`()`) explicitly identifies this as a mixin to Less, which will
+	// not output it, so for things that are just for mixing in, this is best practice.
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+html, body {
+	.helvetica();
+}
+
+/*! -- Parametric Mixins */
+/// ------------------------
+//  Mixins can optionally accept arguments, separated by commas (`,`) or semi-colons (`;`).  The
+//  mixin's definitions and calls don't have to use the same characters to delimit arguments; The
+//  definition may use semi-colons where the call uses commas (as below).
+//  Arguments can also be given default values, specified after the argument name with a colon.
+//  Arguments with default values are optional when the mixin is called.
+.button-theme(@text-color; @background-color; @darken-amount: 20%) {
+	color: @text-color;
+	background-color: @background-color;
+	&:hover {
+		background-color: darken(@background-color,@darken-amount); // Generated background color.
+	}
+}
+.button-green {
+	.button-theme(#fff, #10ca15);
+}
+
+/*! -- Defining a Mixin & Class With the Same Name */
+/// ------------------------
+//  In Less, any class can be mixed in, so just declare the class and you're done.
+.clearfix {
+	&:before,
+	&:after {
+		content: ' ';
+		display: table;
+	}
+	&:after {
+		clear: both;
+	}
+}
+.something-to-clearfix {
+	.clearfix();
+}
+
+/*! -- Mixing in Classes from Other Files */
+/// ------------------------
+//  Because any class processed as Less can be mixed in anywhere, even classes that come from
+//  included CSS files can be mixed in anywhere.
+
+.mixin-anything {
+	/* Compare .from-css above. */
+	.from-css();
+	/* Compare .from-css-txt above. */
+	.from-css-txt();
+}
+
+/*! -- Detatched Rulesets / Passing Content Blocks to Mixins */
+/// ------------------------
+//  Less allows you to store a ruleset to a variable.  As such, mixins can accept (even by default)
+//  a content block that can be rendered at a given point.
+.render-this(@content:{text-transform:lowercase;}) {
+	.rendered {
+		@content(); // Perens specify rendering of a detached ruleset.
+	}
+}
+.here-is-a-rendered-thing {
+	.render-this({
+		text-transform: uppercase;
+	});
+}
+
+
+/*! EXTENDING/INHERITANCE */
+//! --------------------------------------------------
+
+.extensible {
+	background-color: #ace;
+}
+.nested {
+	.extensible {
+		border-width: 5px;
+	}
+}
+
+.extension {
+	&:extend(.extensible);
+}
+// Alternatively: `.extension:extend(.extensible) {}`
+.extension-all {
+	&:extend(.extensible all); // use the all flag to extend all versions of a given selector.
+}
+.extension-nested {
+	&:extend(.nested .extensible); // can extend selectors that are created by nesting
+}
+
+
+/*! COMMENTS */
+//! --------------------------------------------------
+//  Both language's comments work essentially the same.  Since CSS technically only respects block-
+//  style comments (`/*` & `*/`) Less & Sass/SCSS both consider those to be CSS Comments.  They both
+//  also add line-style comments (`//`), which they will _not_ output to CSS.
+
+/*! -- The Following Comments are _Not_ Output */
+/// ------------------------
+//  Note: Empty rules are also stripped from final output.
+.comments .contains-only-less-comments { // Not output.
+	// Not output. (In fact, as the rule contains only line-style comments, the whole rule will not
+	// be output to the final CSS.)
+} // Not output.
+.comments .empty-rule {} // Not output.
+// Not output.
+
+/*! -- The Following Comments are Output if the Output Style is "Regular" */
+/// ------------------------
+.comments .contains-only-css-comments { /* Output. Note that whitespace around comments changed. */
+	/* Output.  Additionally, since a comment inside the rule is output, the whole rule is output to
+	 * the final CSS. */
+} /* Output. */
+.comments .empty-rule {}
+/* Output. */
+
+/*! -- The Following Comments are Output, Even if the Output Style is "Compressed" */
+/// ------------------------
+//  Adding an exclamation mark (`!`) as the first character of a comment (i.e. `/*!`) marks it for
+//  inclusion even if the output is minified.
+.comments .contains-only-css-bang-comments { /*! Output. */
+	/*! Output.  Additionally, since a comment inside the rule is output, the whole rule is output to
+	 * the final CSS. */
+} /*! Output. */
+.comments .empty-rule {}
+/*! Output. */

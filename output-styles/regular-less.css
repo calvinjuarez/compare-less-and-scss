@@ -1,0 +1,189 @@
+/*!
+ *  Demonstration of Less "Regular" Output Style - regular.less
+ */
+/*
+ *  Comparing Less & Sass/SCSS, Less - less.less
+ */
+/*! IMPORTS */
+/*! -- Basic Inclusion of a File's Contents */
+@import 'hypothetical-file-1.css';
+@import 'hypothetical-file-2.less' screen;
+@import 'http://example.com/hypothetical-file-3.less';
+@import url('hypothetical-file-4.less');
+@import 'hypothetical-file-5.css.php';
+.from-import {
+  /* ... */
+}
+.from-_partial {
+  /* ... */
+}
+/*! -- Including a File With a Different Extension */
+/*
+ *  External CSS File for Demonstrating Importing, But With a Different Extension - css.txt
+ */
+.from-css-txt {
+  /* From css.txt */
+  font-weight: bold;
+}
+/*! -- Including CSS In-Place or Processing it as Less */
+/*
+ *  External CSS File for Demonstrating Importing - css.css
+ */
+.from-css {
+  /* From css.css */
+  font-style: italic;
+}
+/*! -- Defining CSS `@import` */
+/*! if you're looking at this in the CSS, look at the top of the file for the actual imports */
+/*! VARIABLES */
+/*! -- Theming & Overriding */
+.variable-behavior {
+  color: blue;
+}
+/*! -- Variable Scope */
+.variable-scope {
+  background-color: green;
+}
+/*! NESTING */
+.parent {
+  /* style the parent on its own, if you need them */
+}
+.parent .child {
+  /* style the child, as nested in the parent */
+}
+/*! -- `&` Parent Selector */
+.menu {
+  /* ... */
+}
+.menu a {
+  display: inline-block;
+  padding: 5px 20px;
+}
+.menu a:hover {
+  background-color: #5ad;
+}
+.dialog-backdrop {
+  display: none;
+}
+body.has-open-dialog .dialog-backdrop {
+  display: block;
+}
+.alert {
+  border: 1px solid currentcolor;
+}
+.alert-error {
+  color: #e66;
+}
+.button {
+  padding: 5px 20px;
+}
+a.button {
+  display: inline-block;
+}
+button.button {
+  appearance: none;
+}
+/*! -- "Scoping" an Imported File */
+.scoped {
+  /*! SCOPED IMPORT CAVEATS */
+  /*! -- Parent Selector Examples */
+  /*! -- Extend Examples */
+}
+.scoped .rule-to-be-scoped {
+  /* ... */
+}
+.scoped .scoped-dialog-backdrop {
+  display: none;
+}
+body.has-open-dialog .scoped .scoped-dialog-backdrop {
+  display: block;
+}
+.scoped .scoped-button {
+  padding: 5px 20px;
+}
+a.scoped .scoped-button {
+  display: inline-block;
+}
+.scoped .scoped-button {
+  padding: 5px 20px;
+}
+.scoped a.scoped-button {
+  display: inline-block;
+}
+.scoped .scoped-extensible,
+.scoped .scoped .scoped-extension,
+.scoped .scoped-extension {
+  background-color: #ace;
+}
+/*! MIXINS */
+html,
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+/*! -- Parametric Mixins */
+.button-green {
+  color: #fff;
+  background-color: #10ca15;
+}
+.button-green:hover {
+  background-color: #096b0b;
+}
+/*! -- Defining a Mixin & Class With the Same Name */
+.clearfix:before,
+.clearfix:after {
+  content: ' ';
+  display: table;
+}
+.clearfix:after {
+  clear: both;
+}
+.something-to-clearfix:before,
+.something-to-clearfix:after {
+  content: ' ';
+  display: table;
+}
+.something-to-clearfix:after {
+  clear: both;
+}
+/*! -- Mixing in Classes from Other Files */
+.mixin-anything {
+  /* Compare .from-css above. */
+  /* From css.css */
+  font-style: italic;
+  /* Compare .from-css-txt above. */
+  /* From css.txt */
+  font-weight: bold;
+}
+/*! -- Detatched Rulesets / Passing Content Blocks to Mixins */
+.here-is-a-rendered-thing .rendered {
+  text-transform: uppercase;
+}
+/*! EXTENDING/INHERITANCE */
+.extensible,
+.extension,
+.extension-all {
+  background-color: #ace;
+}
+.nested .extensible,
+.nested .extension-all,
+.extension-nested {
+  border-width: 5px;
+}
+/*! COMMENTS */
+/*! -- The Following Comments are _Not_ Output */
+/*! -- The Following Comments are Output if the Output Style is "Regular" */
+.comments .contains-only-css-comments {
+  /* Output. Note that whitespace around comments changed. */
+  /* Output.  Additionally, since a comment inside the rule is output, the whole rule is output to
+	 * the final CSS. */
+}
+/* Output. */
+/* Output. */
+/*! -- The Following Comments are Output, Even if the Output Style is "Compressed" */
+.comments .contains-only-css-bang-comments {
+  /*! Output. */
+  /*! Output.  Additionally, since a comment inside the rule is output, the whole rule is output to
+	 * the final CSS. */
+}
+/*! Output. */
+/*! Output. */

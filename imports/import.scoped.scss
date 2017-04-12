@@ -1,0 +1,47 @@
+//
+//  Styles to be Scoped - import.scoped.scss
+//
+
+
+.rule-to-be-scoped {
+	/* ... */
+}
+
+
+/*! SCOPED IMPORT CAVEATS */
+//! --------------------------------------------------
+//  The `&` parent selector and extending can cause issues here.
+
+/*! -- Parent Selector Examples */
+/// ------------------------
+// The following works as it was most likely intended to work.
+.scoped-dialog-backdrop {
+	display: none;
+	body.has-open-dialog & { // → body.has-open-dialog .scoped .scoped-dialog-backdrop (as intended)
+		display: block;
+	}
+}
+// (Unsupported Syntax)
+// .scoped-button {
+// 	padding: 5px 20px;
+// 	a& { // → ERROR "&" may only be used at the beginning of a compound selector.
+// 		display: inline-block;
+// 	}
+// }
+// The standard workaround also fixes scoping, (probably why the above errors in the first place).
+.scoped-button {
+	padding: 5px 20px;
+}
+	a.scoped-button { // → .scoped a.scoped-button (more likely what was meant)
+		display: inline-block;
+	}
+
+/*! -- Extend Examples */
+/// ------------------------
+//  This works as intended for Sass/SCSS.  Less's solution is maybe a little less intuitive.
+.scoped-extensible { // → .scoped .scoped-extend-base
+	background-color: #ace;
+}
+.scoped-extension {
+	@extend .scoped-extensible; // → .scoped .scoped-extension
+}
